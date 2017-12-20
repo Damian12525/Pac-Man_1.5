@@ -1,11 +1,10 @@
 import random
-
 import pygame
 import Board
 import os
 import math
 
-
+red = (255,0,0)
 
 def constrain (value, min, max):
     if value < min:
@@ -14,18 +13,12 @@ def constrain (value, min, max):
         return float(max)
     else:
         return value
-
-
 def signum(x):
     return x / math.fabs(x)
-
-
 def positionToDraw(x, y):
     draw_x = int(x * Board.box_size - Board.box_size / 2 + background_x)
     draw_y = int(y * Board.box_size - Board.box_size / 2 + background_y)
     return (draw_x, draw_y)
-
-
 def drawPoints():
     for i in range(len(currentMap.edgeList)):
         # currentMap.edgeList[i].pointList[j].pos
@@ -105,6 +98,11 @@ class Ghost:
                 self.y += self.y_vel
                 return
 
+            self.target_dir_x = player.x - self.x
+            self.target_dir_y = player.y - self.y
+
+
+
             # target_dir = random.randrange(4)
             # if target_dir == 0:
             #     self.target_dir_x = 1
@@ -119,16 +117,7 @@ class Ghost:
             #     self.target_dir_x = 0
             #     self.target_dir_y = -1
 
-            self.target_dir_x = player.x - self.x
-            self.target_dir_y = player.y - self.y
 
-            if abs(self.target_dir_x) > abs(self.target_dir_y):
-                self.target_dir_x = signum(self.target_dir_x)
-                self.target_dir_y = 0
-
-            else:
-                self.target_dir_x = 0
-                self.target_dir_y = signum(self.target_dir_y)
 
 
 
@@ -193,7 +182,6 @@ class Ghost:
     def atNode2(self):  # if plater reached node 2
         return currentMap.nodeList[currentMap.edgeList[self.currentEdge].nodeID_2].x == self.x and \
                currentMap.nodeList[currentMap.edgeList[self.currentEdge].nodeID_2].y == self.y
-
 
 
 class Pacman:
@@ -365,19 +353,14 @@ class Pacman:
 
 
 pygame.init()
-
-currentMap = Board.Map("./mapFiles/map4.txt")
-
-currentMap.generateIMG()
-
-print(currentMap.edgeList[0].maxX)
-
 displayWidth = 800
 displayHeight = 800
+currentMap = Board.Map("./mapFiles/map4.txt")
+currentMap.generateIMG()
 
-black = (0, 0, 0)
-white = (255, 255, 255)
-red = (255, 0, 0)
+
+
+
 
 gameDisplay = pygame.display.set_mode((displayWidth, displayHeight))
 
