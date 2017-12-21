@@ -37,7 +37,8 @@ def drawPoints():
     for i in range(len(currentMap.nodeList)):
         if currentMap.nodeList[i].pointSlot != -1:
             pygame.draw.circle(gameDisplay, red, positionToDraw(currentMap.nodeList[i].x, currentMap.nodeList[i].y), 5)
-
+def distance(x1, y1, x2, y2):
+    return math.sqrt((x2-x1)**2+(y2-y1)**2)
 
 class Ghost:
 
@@ -54,6 +55,7 @@ class Ghost:
         self.currentEdge = 0
         self.x = float(currentMap.nodeList[_currentNode].x)
         self.y = float(currentMap.nodeList[_currentNode].y)
+        self.target_dir = -1
 
     def show(self):
         pygame.draw.circle(gameDisplay, (0, 0, 255), positionToDraw(self.x, self.y), 13)
@@ -101,21 +103,44 @@ class Ghost:
             self.target_dir_x = player.x - self.x
             self.target_dir_y = player.y - self.y
 
+            direction_list = []
+            direction_list.append(-self.target_dir_y)
+            direction_list.append(self.target_dir_x)
+            direction_list.append(self.target_dir_y)
+            direction_list.append(-self.target_dir_x)
 
 
-            # target_dir = random.randrange(4)
-            # if target_dir == 0:
-            #     self.target_dir_x = 1
-            #     self.target_dir_y = 0
-            # elif target_dir == 1:
-            #     self.target_dir_x = -1
-            #     self.target_dir_y = 0
-            # elif target_dir == 2:
-            #     self.target_dir_x = 0
-            #     self.target_dir_y = 1
-            # elif target_dir == 3:
-            #     self.target_dir_x = 0
-            #     self.target_dir_y = -1
+            currentNode = currentMap.nodeList[self.currentNode]
+
+            if currentNode.up == -1:
+                direction_list[0] = -100
+            if currentNode.right == -1:
+                direction_list[1] = -100
+            if currentNode.down == -1:
+                direction_list[2] = -100
+            if currentNode.left == -1:
+                direction_list[3] = -100
+
+            if direction_list.count(-100) < 3:
+                direction_list[(self.target_dir + 2) % 4] = -100
+
+            self.target_dir = direction_list.index(max(direction_list))
+
+
+
+
+            if self.target_dir == 0:
+                self.target_dir_x = 0
+                self.target_dir_y = -1
+            elif self.target_dir == 1:
+                self.target_dir_x = 1
+                self.target_dir_y = 0
+            elif self.target_dir == 2:
+                self.target_dir_x = 0
+                self.target_dir_y = 1
+            elif self.target_dir == 3:
+                self.target_dir_x = -1
+                self.target_dir_y = 0
 
 
 
@@ -351,6 +376,11 @@ class Pacman:
                 currentMap.edgeList[self.currentEdge].pointList.pop(j)
                 break
 
+    def check_if_dead(self):
+        for i in range(len(ghosts)):
+            if distance(self.x,self.y,ghosts[i].x,ghosts[i].y) < 0.07:
+                return True
+        return False
 
 pygame.init()
 displayWidth = 800
@@ -369,7 +399,9 @@ pygame.display.set_caption('Pac-Man')
 clock = pygame.time.Clock()
 
 player = Pacman(1)
-ghst = Ghost(2)
+ghosts = []
+ghosts.append(Ghost(3))
+ghosts.append(Ghost(6))
 
 dead = False
 background = pygame.image.load("./tmp/map.png")
@@ -397,14 +429,17 @@ while not dead:
         # print(event)
     player.update()
     player.eat()
-    #    print(player.x_vel)
+    dead = player.check_if_dead()
+    print(player.score)
     gameDisplay.blit(background, (background_x, background_y))
 
     drawPoints()
     player.show()
 
-    ghst.update()
-    ghst.show()
+    for i in range(len(ghosts)):
+        ghosts[i].update()
+        ghosts[i].show()
+
 
     pygame.display.update()
 

@@ -43,6 +43,7 @@ class Map:
         self.edgeList = []
         self.size_x = int(0)
         self.size_y = int(0)
+        self.pointCount = -5
 
         file = open(file_path, "r")
 
@@ -57,6 +58,7 @@ class Map:
             if currentLine[0] == 'n':
                 newNode = Node(int(currentLine[1]), int(currentLine[2]), len(self.nodeList))
                 self.nodeList.append(newNode)
+                self.pointCount += 5
                 if int(currentLine[1]) > int(self.size_x):
                     self.size_x = currentLine[1]
                 if int(currentLine[2]) > int(self.size_y):
@@ -127,7 +129,7 @@ class Map:
                         newEdge.minY = newEdge.node1y
 
 
-                newEdge.placePoints()
+                self.pointCount += newEdge.placePoints()
 
                 self.edgeList.append(newEdge)
 
@@ -215,6 +217,7 @@ class Edge:
 
 
     def placePoints(self):
+        count = 0
         amount = int(self.length * Point.density)
         separation_distance = self.length / (amount + 1)
         if self.vertical == False:
@@ -222,6 +225,7 @@ class Edge:
 
             for i in range(amount):
                 self.pointList.append(Point(self.node1x - sign * (i + 1) * separation_distance))
+                count += 1
 
 
         else:
@@ -229,6 +233,8 @@ class Edge:
 
             for i in range(amount):
                 self.pointList.append(Point(self.node1y - sign * (i + 1) * separation_distance))
+                count += 1
+        return count
 
 
 def makeEven(x):
