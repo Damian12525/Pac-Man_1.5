@@ -121,8 +121,10 @@ class Ghost:
             if currentNode.left == -1:
                 direction_list[3] = -100
 
-            if direction_list.count(-100) < 3:
-                direction_list[(self.target_dir + 2) % 4] = -100
+
+            # zabronienie zawracania
+            # if direction_list.count(-100) < 3:
+            #     direction_list[(self.target_dir + 2) % 4] = -100
 
             self.target_dir = direction_list.index(max(direction_list))
 
@@ -382,39 +384,50 @@ class Pacman:
                 return True
         return False
 
+    def check_if_won(self):
+        if player.score == currentMap.pointCount:
+            return True
+        else:
+            return False
+
 pygame.init()
 displayWidth = 800
 displayHeight = 800
-currentMap = Board.Map("./mapFiles/map4.txt")
+currentMap = Board.Map("./mapFiles/map5.txt")
 currentMap.generateIMG()
-
+ghost_number = 0
 
 
 
 
 gameDisplay = pygame.display.set_mode((displayWidth, displayHeight))
 
-pygame.display.set_caption('Pac-Man')
+pygame.display.set_caption('The Return of the PAC-ANT')
 
 clock = pygame.time.Clock()
 
+
+
 player = Pacman(1)
 ghosts = []
-ghosts.append(Ghost(3))
-ghosts.append(Ghost(6))
+for i in range (ghost_number):
+    ghosts.append(Ghost(i+6))
 
 dead = False
+want_to_exit = False
+won = False
+
 background = pygame.image.load("./tmp/map.png")
 background_x = int((displayWidth - int(currentMap.size_x) * Board.box_size) / 2)
 background_y = int((displayHeight - int(currentMap.size_y) * Board.box_size) / 2)
 
-while not dead:
+while not dead and not want_to_exit and not won:
 
     for event in pygame.event.get():
 
         if event.type == pygame.QUIT:
             # przerywamy petle
-            dead = True
+            want_to_exit = True
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
@@ -430,7 +443,8 @@ while not dead:
     player.update()
     player.eat()
     dead = player.check_if_dead()
-    print(player.score)
+    won = player.check_if_won()
+
     gameDisplay.blit(background, (background_x, background_y))
 
     drawPoints()
@@ -444,6 +458,16 @@ while not dead:
     pygame.display.update()
 
     clock.tick(30)
+
+
+
+if won:
+    print("Gratulacje")
+
+if dead:
+    print("RIP")
+
+
 
 pygame.quit()
 

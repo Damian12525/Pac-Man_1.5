@@ -16,7 +16,7 @@ def distance(x1, y1, x2, y2):
 
 class Node:
 
-    def __init__(self, _x, _y, _nodeID, _linkedTunelID=-1):
+    def __init__(self, _x, _y, _nodeID, _linkedTunelID = -1, _ghostHouse = -1):
         self.x = _x
         self.y = _y
         self.type = 0
@@ -31,10 +31,78 @@ class Node:
         self.left = -1  # 8
 
         self.linkedTunelID = _linkedTunelID
+        self.ghostHouse = _ghostHouse
+
+
+
 
 
 class Map:
     mapCount = 0
+
+
+    def addEdge(self, _node1ID, _node2ID):
+        newEdge = Edge(int( _node1ID), int(_node2ID), len(self.edgeList))
+        newEdge.node1x = self.nodeList[newEdge.nodeID_1].x
+        newEdge.node1y = self.nodeList[newEdge.nodeID_1].y
+        newEdge.node2x = self.nodeList[newEdge.nodeID_2].x
+        newEdge.node2y = self.nodeList[newEdge.nodeID_2].y
+
+        if self.nodeList[newEdge.nodeID_1].x == self.nodeList[newEdge.nodeID_2].x:
+            newEdge.vertical = True
+        else:
+            newEdge.vertical = False
+
+        if newEdge.vertical == False:
+            newEdge.length = math.fabs(self.nodeList[newEdge.nodeID_1].x - self.nodeList[newEdge.nodeID_2].x)
+
+            if self.nodeList[newEdge.nodeID_1].x < self.nodeList[newEdge.nodeID_2].x:
+                self.nodeList[newEdge.nodeID_1].right = newEdge.edgeID
+                self.nodeList[newEdge.nodeID_2].left = newEdge.edgeID
+            else:
+                self.nodeList[newEdge.nodeID_1].left = newEdge.edgeID
+                self.nodeList[newEdge.nodeID_2].right = newEdge.edgeID
+
+        else:
+            newEdge.length = math.fabs(
+                self.nodeList[newEdge.nodeID_1].y - self.nodeList[newEdge.nodeID_2].y)
+
+            if self.nodeList[newEdge.nodeID_1].y > self.nodeList[newEdge.nodeID_2].y:
+                self.nodeList[newEdge.nodeID_1].up = newEdge.edgeID
+                self.nodeList[newEdge.nodeID_2].down = newEdge.edgeID
+            else:
+                self.nodeList[newEdge.nodeID_1].down = newEdge.edgeID
+                self.nodeList[newEdge.nodeID_2].up = newEdge.edgeID
+
+        if newEdge.vertical == False:
+            newEdge.minY = newEdge.node1y
+            newEdge.maxY = newEdge.node1y
+            if newEdge.node1x > newEdge.node2x:
+                newEdge.maxX = newEdge.node1x
+                newEdge.minX = newEdge.node2x
+            else:
+                newEdge.maxX = newEdge.node2x
+                newEdge.minX = newEdge.node1x
+
+        else:
+            newEdge.minX = newEdge.node1x
+            newEdge.maxX = newEdge.node1x
+
+            if newEdge.node1y > newEdge.node2y:
+                newEdge.maxY = newEdge.node1y
+                newEdge.minY = newEdge.node2y
+            else:
+                newEdge.maxY = newEdge.node2y
+                newEdge.minY = newEdge.node1y
+
+        self.pointCount += newEdge.placePoints()
+
+        self.edgeList.append(newEdge)
+
+
+
+
+
 
     def __init__(self, file_path):
         Map.mapCount += 1
@@ -44,6 +112,7 @@ class Map:
         self.size_x = int(0)
         self.size_y = int(0)
         self.pointCount = -5
+        self.ghostHouseList = []
 
         file = open(file_path, "r")
 
@@ -74,64 +143,42 @@ class Map:
                     self.size_y = currentLine[2]
 
 
-            else:
-                newEdge = Edge(int(currentLine[1]), int(currentLine[2]), len(self.edgeList))
-                newEdge.node1x = self.nodeList[newEdge.nodeID_1].x
-                newEdge.node1y = self.nodeList[newEdge.nodeID_1].y
-                newEdge.node2x = self.nodeList[newEdge.nodeID_2].x
-                newEdge.node2y = self.nodeList[newEdge.nodeID_2].y
+            elif currentLine[0] == 'e':
+                self.addEdge(int(currentLine[1]), int(currentLine[2]))
 
-                if self.nodeList[newEdge.nodeID_1].x == self.nodeList[newEdge.nodeID_2].x:
-                    newEdge.vertical = True
-                else:
-                    newEdge.vertical = False
+            elif currentLine[0] == 'g':
+                middleNode = Node(int(currentLine[1]), int(currentLine[2]), len(self.nodeList), -1,1)
+                middleNode.pointSlot = -1
 
-                if newEdge.vertical == False:
-                    newEdge.length = math.fabs(self.nodeList[newEdge.nodeID_1].x - self.nodeList[newEdge.nodeID_2].x)
+                self.ghostHouseList.append(len(self.nodeList))
+                self.nodeList.append(middleNode)
 
-                    if self.nodeList[newEdge.nodeID_1].x < self.nodeList[newEdge.nodeID_2].x:
-                        self.nodeList[newEdge.nodeID_1].right = newEdge.edgeID
-                        self.nodeList[newEdge.nodeID_2].left = newEdge.edgeID
-                    else:
-                        self.nodeList[newEdge.nodeID_1].left = newEdge.edgeID
-                        self.nodeList[newEdge.nodeID_2].right = newEdge.edgeID
-
-                else:
-                    newEdge.length = math.fabs(
-                        self.nodeList[newEdge.nodeID_1].y - self.nodeList[newEdge.nodeID_2].y)
-
-                    if self.nodeList[newEdge.nodeID_1].y > self.nodeList[newEdge.nodeID_2].y:
-                        self.nodeList[newEdge.nodeID_1].up = newEdge.edgeID
-                        self.nodeList[newEdge.nodeID_2].down = newEdge.edgeID
-                    else:
-                        self.nodeList[newEdge.nodeID_1].down = newEdge.edgeID
-                        self.nodeList[newEdge.nodeID_2].up = newEdge.edgeID
-
-                if newEdge.vertical == False:
-                    newEdge.minY = newEdge.node1y
-                    newEdge.maxY = newEdge.node1y
-                    if newEdge.node1x > newEdge.node2x:
-                        newEdge.maxX = newEdge.node1x
-                        newEdge.minX = newEdge.node2x
-                    else:
-                        newEdge.maxX = newEdge.node2x
-                        newEdge.minX = newEdge.node1x
-
-                else:
-                    newEdge.minX = newEdge.node1x
-                    newEdge.maxX = newEdge.node1x
-
-                    if newEdge.node1y > newEdge.node2y:
-                        newEdge.maxY = newEdge.node1y
-                        newEdge.minY = newEdge.node2y
-                    else:
-                        newEdge.maxY = newEdge.node2y
-                        newEdge.minY = newEdge.node1y
+                if int(currentLine[2]) > int(self.size_y):
+                    self.size_y = currentLine[2]
 
 
-                self.pointCount += newEdge.placePoints()
+                leftNode = Node(middleNode.x -1,middleNode.y, len(self.nodeList))
+                leftNode.pointSlot = -1
+                self.ghostHouseList.append(len(self.nodeList))
+                self.nodeList.append(middleNode)
 
-                self.edgeList.append(newEdge)
+
+                rightNode = Node(middleNode.x +1, middleNode.y, len(self.nodeList))
+                rightNode.pointSlot = -1
+                self.ghostHouseList.append(len(self.nodeList))
+                self.nodeList.append(middleNode)
+                if int(currentLine[1]) + 1 > int(self.size_x):
+                    self.size_x = leftNode.x
+
+                print(self.nodeList)
+
+                self.addEdge(middleNode.nodeID, leftNode.nodeID)
+                self.addEdge(middleNode.nodeID, rightNode.nodeID)
+
+
+
+
+
 
         # set type of all nodes
         for i in range(len(self.nodeList)):
@@ -151,10 +198,22 @@ class Map:
         color = (255, 255, 255)
         # im = Image.frombytes('L', (img_res_x, img_res_y), bytes([0] * img_res_x * img_res_y))
         im = Image.new('RGB', (img_res_x, img_res_y), color)
-        for i in range(len(self.nodeList)):
-            nodeImgPath = "./assets/map/node_" + str(self.nodeList[i].type) + ".png"
+        background = Image.open("./assets/map/background.png", "r")
+        for x in range(int(self.size_x)):
+            for y in range(int(self.size_y)):
+                im.paste(background, ((x  * box_size), (y * box_size)))
 
-            node = Image.open(nodeImgPath, "r")
+
+
+
+
+        for i in range(len(self.nodeList)):
+            if self.nodeList[i].ghostHouse == -1:
+                nodeImgPath = "./assets/map/node_" + str(self.nodeList[i].type) + ".png"
+
+                node = Image.open(nodeImgPath, "r")
+            else:
+                node = Image.open("./assets/map/ghouse.png","r")
             im.paste(node, (((self.nodeList[i].x - 1) * box_size), ((self.nodeList[i].y - 1) * box_size)), mask=node)
 
         for i in range(len(self.edgeList)):
