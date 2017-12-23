@@ -445,13 +445,18 @@ im.save("./assets/img/white_screen.png")
 white_screen = pygame.image.load("./assets/img/white_screen.png")
 white_screen.convert()
 
+
+
+
 for i in range (225,0,-10):
     gameDisplay.blit(background, (0,0))
     black_screen.set_alpha(i)
     gameDisplay.blit(black_screen, (0,0))
 
     pygame.display.update()
-
+pygame.mixer.music.load('./assets/sound/thunder2.mp3')
+pygame.mixer.music.play(0)
+pygame.time.delay(1100)
 # for i in range (0,100,20):
 #     gameDisplay.blit(background, (0,0))
 #     white_screen.set_alpha(i)
@@ -463,6 +468,7 @@ for i in range (225,0,-10):
 #     white_screen.set_alpha(i)
 #     gameDisplay.blit(white_screen, (0,0))
 #     pygame.display.update()
+
 
 for i in range (0,255,40):
     gameDisplay.blit(background, (0,0))
