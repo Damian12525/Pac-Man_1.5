@@ -1,10 +1,25 @@
 import random
 import pygame
+from PIL import Image
+
 import Board
 import os
 import math
+import time
 
 red = (255,0,0)
+
+
+random.seed(time.time())
+
+def exit():
+    os.remove("./tmp/map.png")
+    pygame.mixer.quit()
+    pygame.quit()
+
+    quit()
+
+
 
 def constrain (value, min, max):
     if value < min:
@@ -391,35 +406,97 @@ class Pacman:
             return False
 
 pygame.init()
-displayWidth = 800
-displayHeight = 800
-currentMap = Board.Map("./mapFiles/map5.txt")
+displayWidth = 1760
+displayHeight = 990
+currentMap = Board.Map("./mapFiles/map6.txt")
 currentMap.generateIMG()
-ghost_number = 0
-
-
-
+ghost_number = 3
 
 gameDisplay = pygame.display.set_mode((displayWidth, displayHeight))
 
-pygame.display.set_caption('The Return of the PAC-ANT')
+pygame.display.set_caption('Return of the PAC-ANT')
 
 clock = pygame.time.Clock()
 
+pygame.mixer.init()
 
 
 player = Pacman(1)
 ghosts = []
 for i in range (ghost_number):
-    ghosts.append(Ghost(i+6))
+    rnd = int(random.randrange(len(currentMap.nodeList)))
+    ghosts.append(Ghost(rnd))
 
 dead = False
 want_to_exit = False
 won = False
+start = False
+
+background = pygame.image.load("./assets/img/start_screen.png")
+background = pygame.transform.scale(background, (displayWidth, displayHeight))
+
+im = Image.new('RGB', (displayWidth, displayHeight), (0,0,0))
+im.save("./assets/img/black_screen.png")
+black_screen = pygame.image.load("./assets/img/black_screen.png")
+black_screen.convert()
+
+im = Image.new('RGB', (displayWidth, displayHeight), (255,255,255))
+im.save("./assets/img/white_screen.png")
+white_screen = pygame.image.load("./assets/img/white_screen.png")
+white_screen.convert()
+
+for i in range (225,0,-10):
+    gameDisplay.blit(background, (0,0))
+    black_screen.set_alpha(i)
+    gameDisplay.blit(black_screen, (0,0))
+
+    pygame.display.update()
+
+# for i in range (0,100,20):
+#     gameDisplay.blit(background, (0,0))
+#     white_screen.set_alpha(i)
+#     gameDisplay.blit(white_screen, (0,0))
+#     pygame.display.update()
+
+# for i in range (100,20,-20):
+#     gameDisplay.blit(background, (0,0))
+#     white_screen.set_alpha(i)
+#     gameDisplay.blit(white_screen, (0,0))
+#     pygame.display.update()
+
+for i in range (0,255,40):
+    gameDisplay.blit(background, (0,0))
+    white_screen.set_alpha(i)
+    gameDisplay.blit(white_screen, (0,0))
+    pygame.display.update()
+
+
+while not start and not want_to_exit:
+
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == 13:
+                start = True
+        if event.type == pygame.QUIT:
+            want_to_exit = True
+
+    gameDisplay.blit(background, (0, 0))
+    pygame.display.update()
+
+
+
+
+if want_to_exit:
+    exit()
+
 
 background = pygame.image.load("./tmp/map.png")
 background_x = int((displayWidth - int(currentMap.size_x) * Board.box_size) / 2)
 background_y = int((displayHeight - int(currentMap.size_y) * Board.box_size) / 2)
+
+
+
+
 
 while not dead and not want_to_exit and not won:
 
@@ -468,11 +545,6 @@ if dead:
     print("RIP")
 
 
-
-pygame.quit()
-
-os.remove("./tmp/map.png")
-
-quit()
+exit()
 
 

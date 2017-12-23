@@ -41,8 +41,8 @@ class Map:
     mapCount = 0
 
 
-    def addEdge(self, _node1ID, _node2ID):
-        newEdge = Edge(int( _node1ID), int(_node2ID), len(self.edgeList))
+    def addEdge(self, _node1ID, _node2ID, _withPoints = 1):
+        newEdge = Edge(int( _node1ID), int(_node2ID), len(self.edgeList), _withPoints)
         newEdge.node1x = self.nodeList[newEdge.nodeID_1].x
         newEdge.node1y = self.nodeList[newEdge.nodeID_1].y
         newEdge.node2x = self.nodeList[newEdge.nodeID_2].x
@@ -144,7 +144,11 @@ class Map:
 
 
             elif currentLine[0] == 'e':
-                self.addEdge(int(currentLine[1]), int(currentLine[2]))
+                if len(currentLine) == 4:
+                    self.addEdge(int(currentLine[1]), int(currentLine[2]), int(currentLine[3]))
+                else:
+                    self.addEdge(int(currentLine[1]), int(currentLine[2]))
+
 
             elif currentLine[0] == 'g':
                 middleNode = Node(int(currentLine[1]), int(currentLine[2]), len(self.nodeList), -1,1)
@@ -157,23 +161,23 @@ class Map:
                     self.size_y = currentLine[2]
 
 
-                leftNode = Node(middleNode.x -1,middleNode.y, len(self.nodeList))
+                leftNode = Node(int(middleNode.x -1 ),middleNode.y, len(self.nodeList),-1,1)
                 leftNode.pointSlot = -1
                 self.ghostHouseList.append(len(self.nodeList))
-                self.nodeList.append(middleNode)
+                self.nodeList.append(leftNode)
 
 
-                rightNode = Node(middleNode.x +1, middleNode.y, len(self.nodeList))
+                rightNode = Node(int(middleNode.x +1), middleNode.y, len(self.nodeList),-1,1)
                 rightNode.pointSlot = -1
                 self.ghostHouseList.append(len(self.nodeList))
-                self.nodeList.append(middleNode)
+                self.nodeList.append(rightNode)
                 if int(currentLine[1]) + 1 > int(self.size_x):
-                    self.size_x = leftNode.x
+                    self.size_x = rightNode.x
 
-                print(self.nodeList)
 
-                self.addEdge(middleNode.nodeID, leftNode.nodeID)
-                self.addEdge(middleNode.nodeID, rightNode.nodeID)
+
+                self.addEdge(middleNode.nodeID, leftNode.nodeID, 0)
+                self.addEdge(middleNode.nodeID, rightNode.nodeID, 0)
 
 
 
@@ -213,7 +217,13 @@ class Map:
 
                 node = Image.open(nodeImgPath, "r")
             else:
-                node = Image.open("./assets/map/ghouse.png","r")
+                if self.nodeList[i].up != -1:
+                    node = Image.open("./assets/map/ghouse_middle.png","r")
+                elif self.nodeList[i].right != -1:
+                    node = Image.open("./assets/map/ghouse_left.png", "r")
+                elif self.nodeList[i].left != -1:
+                    node = Image.open("./assets/map/ghouse_right.png", "r")
+
             im.paste(node, (((self.nodeList[i].x - 1) * box_size), ((self.nodeList[i].y - 1) * box_size)), mask=node)
 
         for i in range(len(self.edgeList)):
@@ -254,14 +264,16 @@ class Map:
 
 class Edge:
 
-    def __init__(self, _nodeID_1, _nodeID_2, _edgeID):
+    def __init__(self, _nodeID_1, _nodeID_2, _edgeID, _withPoints = 1):
 
         self.edgeID = _edgeID
         self.nodeID_1 = _nodeID_1
         self.nodeID_2 = _nodeID_2
         self.vertical = False
         self.length = 0
+        self.withPoints = _withPoints
         self.pointList = []
+
 
         self.node1x = 0
         self.node1y = 0
@@ -279,20 +291,21 @@ class Edge:
         count = 0
         amount = int(self.length * Point.density)
         separation_distance = self.length / (amount + 1)
-        if self.vertical == False:
-            sign = signum(self.node1x - self.node2x)
+        if self.withPoints:
+            if self.vertical == False:
+                sign = signum(self.node1x - self.node2x)
 
-            for i in range(amount):
-                self.pointList.append(Point(self.node1x - sign * (i + 1) * separation_distance))
-                count += 1
+                for i in range(amount):
+                    self.pointList.append(Point(self.node1x - sign * (i + 1) * separation_distance))
+                    count += 1
 
 
-        else:
-            sign = signum(self.node1y - self.node2y)
+            else:
+                sign = signum(self.node1y - self.node2y)
 
-            for i in range(amount):
-                self.pointList.append(Point(self.node1y - sign * (i + 1) * separation_distance))
-                count += 1
+                for i in range(amount):
+                    self.pointList.append(Point(self.node1y - sign * (i + 1) * separation_distance))
+                    count += 1
         return count
 
 
