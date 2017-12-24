@@ -1,8 +1,5 @@
 from PIL import Image
 import math
-import random
-
-box_size = 80
 
 
 
@@ -10,8 +7,12 @@ def signum(x):
     return x / math.fabs(x)
 
 
-def distance(x1, y1, x2, y2):
-    return math.sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2)
+
+box_size = 80
+
+
+
+
 
 
 class Node:

@@ -1,16 +1,11 @@
 import random
 import pygame
 from PIL import Image
-
-import Board
 import os
 import math
 import time
+import Board
 
-red = (255,0,0)
-
-
-random.seed(time.time())
 
 def exit():
     os.remove("./tmp/map.png")
@@ -18,9 +13,6 @@ def exit():
     pygame.quit()
 
     quit()
-
-
-
 def constrain (value, min, max):
     if value < min:
         return float(min)
@@ -31,8 +23,8 @@ def constrain (value, min, max):
 def signum(x):
     return x / math.fabs(x)
 def positionToDraw(x, y):
-    draw_x = int(x * Board.box_size - Board.box_size / 2 + background_x)
-    draw_y = int(y * Board.box_size - Board.box_size / 2 + background_y)
+    draw_x = int(x * Board.box_size - 0.5 * Board.box_size)
+    draw_y = int(y * Board.box_size + 0.5 * Board.box_size)
     return (draw_x, draw_y)
 def drawPoints():
     for i in range(len(currentMap.edgeList)):
@@ -55,12 +47,17 @@ def drawPoints():
 def distance(x1, y1, x2, y2):
     return math.sqrt((x2-x1)**2+(y2-y1)**2)
 
+red = (255, 0, 0)
+
+random.seed(time.time())
+
+
 class Ghost:
 
-    def __init__(self,_currentNode, _type = 0):
+    def __init__(self, _currentNode, _type=0):
 
         self.type = _type
-        self.speed = 0.03
+        self.speed = 0.07
         self.target_dir_x = 0
         self.target_dir_y = 0
 
@@ -74,7 +71,6 @@ class Ghost:
 
     def show(self):
         pygame.draw.circle(gameDisplay, (0, 0, 255), positionToDraw(self.x, self.y), 13)
-
 
     def update(self):
         if self.currentNode != -1:
@@ -124,7 +120,6 @@ class Ghost:
             direction_list.append(self.target_dir_y)
             direction_list.append(-self.target_dir_x)
 
-
             currentNode = currentMap.nodeList[self.currentNode]
 
             if currentNode.up == -1:
@@ -136,15 +131,11 @@ class Ghost:
             if currentNode.left == -1:
                 direction_list[3] = -100
 
-
             # zabronienie zawracania
             # if direction_list.count(-100) < 3:
             #     direction_list[(self.target_dir + 2) % 4] = -100
 
             self.target_dir = direction_list.index(max(direction_list))
-
-
-
 
             if self.target_dir == 0:
                 self.target_dir_x = 0
@@ -158,14 +149,6 @@ class Ghost:
             elif self.target_dir == 3:
                 self.target_dir_x = -1
                 self.target_dir_y = 0
-
-
-
-
-
-
-
-
 
             if self.target_dir_x > 0 and currentMap.nodeList[self.currentNode].right != -1:  # Go right
                 self.x_vel = self.speed
@@ -225,9 +208,15 @@ class Ghost:
         return currentMap.nodeList[currentMap.edgeList[self.currentEdge].nodeID_2].x == self.x and \
                currentMap.nodeList[currentMap.edgeList[self.currentEdge].nodeID_2].y == self.y
 
+    def respawn(self):
+        rnd = random.randrange(2)
+        self.currentNode = currentMap.ghostHouseList[rnd]
+        self.x = float(currentMap.nodeList[currentMap.ghostHouseList[rnd]].x)
+        self.y = float(currentMap.nodeList[currentMap.ghostHouseList[rnd]].y)
+
 
 class Pacman:
-    speed = 0.04
+    speed = 0.08
     score = -5
 
     def __init__(self, _currentNode):
@@ -347,9 +336,10 @@ class Pacman:
 
             self.x = round(self.x + self.x_vel, 5)
             self.y = round(self.y + self.y_vel, 5)
-            self.x = float(constrain(self.x, currentMap.edgeList[self.currentEdge].minX, currentMap.edgeList[self.currentEdge].maxX))
-            self.y = float(constrain(self.y, currentMap.edgeList[self.currentEdge].minY, currentMap.edgeList[self.currentEdge].maxY))
-
+            self.x = float(constrain(self.x, currentMap.edgeList[self.currentEdge].minX,
+                                               currentMap.edgeList[self.currentEdge].maxX))
+            self.y = float(constrain(self.y, currentMap.edgeList[self.currentEdge].minY,
+                                               currentMap.edgeList[self.currentEdge].maxY))
 
             if currentMap.edgeList[self.currentEdge].vertical and self.target_dir_y != 0:
                 self.y_vel = self.target_dir_y * Pacman.speed
@@ -376,14 +366,14 @@ class Pacman:
     def eat(self):
         if currentMap.edgeList[self.currentEdge].vertical == False:
             for j in range(len(currentMap.edgeList[self.currentEdge].pointList)):
-                if currentMap.edgeList[self.currentEdge].pointList[j].pos == self.x:
+                if abs(currentMap.edgeList[self.currentEdge].pointList[j].pos - self.x) <= 0.08:
                     currentMap.edgeList[self.currentEdge].pointList[j].eaten = True
                     Pacman.score += currentMap.edgeList[self.currentEdge].pointList[j].value
 
 
         else:
             for j in range(len(currentMap.edgeList[self.currentEdge].pointList)):
-                if currentMap.edgeList[self.currentEdge].pointList[j].pos == self.y:
+                if abs(currentMap.edgeList[self.currentEdge].pointList[j].pos - self.y) <= 0.08:
                     currentMap.edgeList[self.currentEdge].pointList[j].eaten = True
 
                     Pacman.score += currentMap.edgeList[self.currentEdge].pointList[j].value
@@ -393,10 +383,14 @@ class Pacman:
                 currentMap.edgeList[self.currentEdge].pointList.pop(j)
                 break
 
-    def check_if_dead(self):
+    def contact(self):
         for i in range(len(ghosts)):
-            if distance(self.x,self.y,ghosts[i].x,ghosts[i].y) < 0.07:
-                return True
+            if distance(self.x, self.y, ghosts[i].x, ghosts[i].y) < 0.09:
+                if rampage_mode:
+                    ghosts[i].respawn()
+
+                else:
+                    return True
         return False
 
     def check_if_won(self):
@@ -405,9 +399,10 @@ class Pacman:
         else:
             return False
 
+
 pygame.init()
-displayWidth = 1760
-displayHeight = 990
+displayWidth = 1360
+displayHeight = 960
 currentMap = Board.Map("./mapFiles/map6.txt")
 currentMap.generateIMG()
 ghost_number = 3
@@ -420,10 +415,9 @@ clock = pygame.time.Clock()
 
 pygame.mixer.init()
 
-
 player = Pacman(1)
 ghosts = []
-for i in range (ghost_number):
+for i in range(ghost_number):
     rnd = int(random.randrange(len(currentMap.nodeList)))
     ghosts.append(Ghost(rnd))
 
@@ -431,27 +425,37 @@ dead = False
 want_to_exit = False
 won = False
 start = False
+rampage_mode = True
 
-background = pygame.image.load("./assets/img/start_screen.png")
+font = pygame.font.SysFont("Fipps", 40)
+text = font.render("Press Enter", True, (255,255 , 0))
+press_prompt = pygame.Surface((400,100))
+press_prompt.blit(text,(0,0))
+
+background = pygame.image.load("./assets/img/start_screen2.png")
 background = pygame.transform.scale(background, (displayWidth, displayHeight))
 
-im = Image.new('RGB', (displayWidth, displayHeight), (0,0,0))
+im = Image.new('RGB', (displayWidth, displayHeight), (0, 0, 0))
 im.save("./assets/img/black_screen.png")
 black_screen = pygame.image.load("./assets/img/black_screen.png")
 black_screen.convert()
 
-im = Image.new('RGB', (displayWidth, displayHeight), (255,255,255))
+im = Image.new('RGB', (displayWidth, displayHeight), (255, 255, 255))
 im.save("./assets/img/white_screen.png")
 white_screen = pygame.image.load("./assets/img/white_screen.png")
 white_screen.convert()
 
+logo = pygame.image.load("./assets/img/logo2.png")
 
 
 
-for i in range (225,0,-10):
-    gameDisplay.blit(background, (0,0))
+
+
+
+for i in range(225, 0, -10):
+    gameDisplay.blit(background, (0, 0))
     black_screen.set_alpha(i)
-    gameDisplay.blit(black_screen, (0,0))
+    gameDisplay.blit(black_screen, (0, 0))
 
     pygame.display.update()
 pygame.mixer.music.load('./assets/sound/thunder2.mp3')
@@ -470,12 +474,15 @@ pygame.time.delay(1100)
 #     pygame.display.update()
 
 
-for i in range (0,255,40):
-    gameDisplay.blit(background, (0,0))
+for i in range(0, 255, 50):
+    gameDisplay.blit(background, (0, 0))
     white_screen.set_alpha(i)
-    gameDisplay.blit(white_screen, (0,0))
+    gameDisplay.blit(white_screen, (0, 0))
     pygame.display.update()
 
+
+i = 0
+increment = 10
 
 while not start and not want_to_exit:
 
@@ -487,24 +494,31 @@ while not start and not want_to_exit:
             want_to_exit = True
 
     gameDisplay.blit(background, (0, 0))
+    gameDisplay.blit(logo,(220,0))
+    press_prompt.set_alpha(i)
+    gameDisplay.blit(press_prompt,(450,450))
     pygame.display.update()
-
-
-
+    i += increment
+    if(i == 0 or i == 150):
+        increment *= -1
 
 if want_to_exit:
     exit()
 
-
 background = pygame.image.load("./tmp/map.png")
-background_x = int((displayWidth - int(currentMap.size_x) * Board.box_size) / 2)
-background_y = int((displayHeight - int(currentMap.size_y) * Board.box_size) / 2)
+background_x = int(0)
+background_y = int(Board.box_size)
+back = pygame.image.load("./assets/img/back.png")
 
 
+pygame.mixer.music.load('./assets/sound/rampage1.mp3')
+pygame.mixer.music.play(-1)
 
 
 
 while not dead and not want_to_exit and not won:
+
+    gameDisplay.fill((0,0,0))
 
     for event in pygame.event.get():
 
@@ -525,9 +539,9 @@ while not dead and not want_to_exit and not won:
         # print(event)
     player.update()
     player.eat()
-    dead = player.check_if_dead()
+    dead = player.contact()
     won = player.check_if_won()
-
+    gameDisplay.blit(back,(0,0))
     gameDisplay.blit(background, (background_x, background_y))
 
     drawPoints()
@@ -537,12 +551,9 @@ while not dead and not want_to_exit and not won:
         ghosts[i].update()
         ghosts[i].show()
 
-
     pygame.display.update()
 
     clock.tick(30)
-
-
 
 if won:
     print("Gratulacje")
@@ -550,7 +561,4 @@ if won:
 if dead:
     print("RIP")
 
-
 exit()
-
-
