@@ -196,6 +196,8 @@ class Map:
             if self.nodeList[i].left != -1:
                 self.nodeList[i].type += 8
 
+        self.generateIMG()
+
     def generateIMG(self):
 
         img_res_x = int(self.size_x) * box_size
@@ -260,7 +262,9 @@ class Map:
                     y += sign
 
         # im.show()
-        im.save("./tmp/map.png")
+        back = Image.open("./assets/img/back.png")
+        back.paste(im, (0,box_size))
+        back.save("./tmp/map.png")
 
 
 class Edge:
