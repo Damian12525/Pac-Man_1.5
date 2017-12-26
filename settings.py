@@ -3,6 +3,7 @@ from PIL import Image
 import math
 import Board
 import os
+from characters import *
 
 displayWidth = 1360
 displayHeight = 960
@@ -69,19 +70,24 @@ def drawPoints():
 
         if currentMap.edgeList[i].vertical == False:
             for j in range(len(currentMap.edgeList[i].pointList)):
-                pygame.draw.circle(gameDisplay, red, positionToDraw(currentMap.edgeList[i].pointList[j].pos,
+                pygame.draw.circle(gameDisplay, (255,255,0), positionToDraw(currentMap.edgeList[i].pointList[j].pos,
                                                                     currentMap.edgeList[i].node1y), 3)
 
 
         else:
             for j in range(len(currentMap.edgeList[i].pointList)):
-                pygame.draw.circle(gameDisplay, red, positionToDraw(currentMap.edgeList[i].node1x,
+                pygame.draw.circle(gameDisplay, (255,255,0), positionToDraw(currentMap.edgeList[i].node1x,
                                                                     currentMap.edgeList[i].pointList[j].pos), 3)
 
     for i in range(len(currentMap.nodeList)):
         if currentMap.nodeList[i].pointSlot != -1:
-            pygame.draw.circle(gameDisplay, red, positionToDraw(currentMap.nodeList[i].x, currentMap.nodeList[i].y), 5)
+            pygame.draw.circle(gameDisplay, (255,255,0), positionToDraw(currentMap.nodeList[i].x, currentMap.nodeList[i].y), 5)
 def distance(x1, y1, x2, y2):
     return math.sqrt((x2-x1)**2+(y2-y1)**2)
+
+def draw_rampage_pills():
+    for i in range(len(currentMap.rampage_pill)):
+        pygame.draw.circle(gameDisplay, (255, 0, 0),positionToDraw(currentMap.nodeList[currentMap.rampage_pill[i]].x, currentMap.nodeList[currentMap.rampage_pill[i]].y), 6)
+
 
 

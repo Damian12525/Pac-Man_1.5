@@ -1,5 +1,6 @@
 from PIL import Image
 import math
+import random
 
 
 
@@ -114,6 +115,8 @@ class Map:
         self.size_y = int(0)
         self.pointCount = -5
         self.ghostHouseList = []
+
+        self.rampage_pill = []
 
         file = open(file_path, "r")
 
@@ -265,6 +268,17 @@ class Map:
         back = Image.open("./assets/img/back.png")
         back.paste(im, (0,box_size))
         back.save("./tmp/map.png")
+
+
+    def spawn_rampage_pill(self):
+        while len(self.rampage_pill) < 4:
+            rnd = -1
+            while rnd == -1 and self.rampage_pill.count(rnd) != 0:
+                rnd = random.randrange(len(self.nodeList))
+
+            self.rampage_pill.append(rnd)
+
+
 
 
 class Edge:

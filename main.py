@@ -1,47 +1,14 @@
-import random
-import pygame
-from PIL import Image
-import os
-import math
-import time
-import Board
-
-from settings import *
 from characters import *
 from gameState import *
-
-
-
-
-
-
-
-
+import pygame
 
 
 pygame.init()
-
-
-
-
 pygame.mixer.init()
-
-
-
-
-
-
 
 for i in range(ghost_number):
     rnd = int(random.randrange(len(currentMap.nodeList)))
     ghosts.append(Ghost(rnd))
-
-
-
-
-
-
-
 
 
 for i in range(225, 0, -10):
@@ -89,8 +56,6 @@ if want_to_exit:
 background = pygame.image.load("./tmp/map.png")
 
 
-
-
 pygame.mixer.music.load('./assets/sound/rampage1.mp3')
 pygame.mixer.music.play(-1)
 
@@ -98,9 +63,7 @@ font = pygame.font.SysFont("Fipps", 30)
 
 while not dead and not want_to_exit and not won:
 
-
-
-
+    currentMap.spawn_rampage_pill()
 
 
     for event in pygame.event.get():
@@ -122,12 +85,18 @@ while not dead and not want_to_exit and not won:
         # print(event)
     player.update()
     player.eat()
-    dead = player.contact()
+    player.eat_rampage_pill()
+    rampage_mode = player.check_if_rampage()
+    dead = player.contact(rampage_mode)
     won = player.check_if_won()
+
+
+
 
 
     gameDisplay.blit(background, (0,0))
     drawPoints()
+    draw_rampage_pills()
     player.show()
     text = font.render(str(player.score), True, (255, 255, 0))
     gameDisplay.blit(text,(1220,100))

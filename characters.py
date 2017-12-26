@@ -3,6 +3,7 @@ from gameState import *
 import random
 
 
+
 ghosts = []
 
 class Ghost:
@@ -170,7 +171,6 @@ class Ghost:
 
 
 
-
 class Pacman:
     speed = 0.08
     score = -5
@@ -186,6 +186,7 @@ class Pacman:
 
         self.target_dir_x = 0
         self.target_dir_y = 0
+        self.last_rampage_pill = -100000
 
     def show(self):
 
@@ -339,10 +340,10 @@ class Pacman:
                 currentMap.edgeList[self.currentEdge].pointList.pop(j)
                 break
 
-    def contact(self):
+    def contact(self, _rampage_mode):
         for i in range(len(ghosts)):
             if distance(self.x, self.y, ghosts[i].x, ghosts[i].y) < 0.09:
-                if rampage_mode:
+                if _rampage_mode:
                     ghosts[i].respawn()
 
                 else:
@@ -354,5 +355,21 @@ class Pacman:
             return True
         else:
             return False
+
+
+    def eat_rampage_pill(self):
+        for i in range (len(currentMap.rampage_pill)):
+            if currentMap.rampage_pill[i] == self.currentNode:
+                currentMap.rampage_pill.pop(i)
+                self.last_rampage_pill = pygame.time.get_ticks()
+                break
+
+    def check_if_rampage(self):
+        if (pygame.time.get_ticks() - self.last_rampage_pill) / 1000 <= 10:
+            return True
+        else:
+            return False
+
+
 
 player = Pacman(1)
