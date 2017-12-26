@@ -188,9 +188,40 @@ class Pacman:
         self.target_dir_y = 0
         self.last_rampage_pill = -100000
 
-    def show(self):
 
-        pygame.draw.circle(gameDisplay, (255, 255, 0), positionToDraw(self.x, self.y), 12)
+    def positionToDraw(self):
+        if self.x_vel > 0:
+            draw_x = int(self.x * Board.box_size + 0.5 * Board.box_size - 20)
+            draw_y = int(self.y * Board.box_size + 0.5 * Board.box_size - 15)
+        if self.x_vel < 0:
+            draw_x = int(self.x * Board.box_size + 0.5 * Board.box_size - 15)
+            draw_y = int(self.y * Board.box_size + 0.5 * Board.box_size -15)
+        if self.y_vel < 0 or (self.x_vel == 0 and self.y_vel == 0):
+            draw_x = int(self.x * Board.box_size + 0.5 * Board.box_size - 15)
+            draw_y = int(self.y * Board.box_size + 0.5 * Board.box_size - 15)
+        if self.y_vel > 0:
+            draw_x = int(self.x * Board.box_size + 0.5 * Board.box_size - 15)
+            draw_y = int(self.y * Board.box_size + 0.5 * Board.box_size - 20)
+
+
+
+        return (draw_x, draw_y)
+
+
+    def show(self):
+        rotated = pygame.Surface((1,1))
+        #pygame.draw.circle(gameDisplay, (255, 255, 0), positionToDraw(self.x, self.y), 12)
+        if self.x_vel > 0:
+            rotated = pygame.transform.rotate(ant, -90)
+        if self.x_vel < 0:
+            rotated = pygame.transform.rotate(ant, 90)
+        if self.y_vel < 0 or (self.x_vel == 0 and self.y_vel == 0):
+            rotated = ant
+        if self.y_vel > 0:
+            rotated = pygame.transform.rotate(ant, 180)
+
+
+        gameDisplay.blit(rotated, self.positionToDraw())
 
     def control(self, dirX, dirY):
         # gets x and y direction as a argument
@@ -240,6 +271,7 @@ class Pacman:
 
             if currentMap.nodeList[self.currentNode].pointSlot != -1:
                 Pacman.score += currentMap.nodeList[self.currentNode].pointSlot.value
+                coin.play()
                 currentMap.nodeList[self.currentNode].pointSlot = -1
 
             if self.target_dir_x > 0 and currentMap.nodeList[self.currentNode].right != -1:  # Go right
@@ -326,12 +358,14 @@ class Pacman:
                 if abs(currentMap.edgeList[self.currentEdge].pointList[j].pos - self.x) <= 0.08:
                     currentMap.edgeList[self.currentEdge].pointList[j].eaten = True
                     Pacman.score += currentMap.edgeList[self.currentEdge].pointList[j].value
+                    coin.play()
 
 
         else:
             for j in range(len(currentMap.edgeList[self.currentEdge].pointList)):
                 if abs(currentMap.edgeList[self.currentEdge].pointList[j].pos - self.y) <= 0.08:
                     currentMap.edgeList[self.currentEdge].pointList[j].eaten = True
+                    coin.play()
 
                     Pacman.score += currentMap.edgeList[self.currentEdge].pointList[j].value
 
@@ -347,8 +381,9 @@ class Pacman:
                     ghosts[i].respawn()
 
                 else:
-                    return True
-        return False
+                    self.respawn()
+                    return -1
+        return 0
 
     def check_if_won(self):
         if player.score == currentMap.pointCount:
@@ -371,5 +406,15 @@ class Pacman:
             return False
 
 
+    def respawn(self):
+        self.currentNode = currentMap.start_node
+        self.x = float(currentMap.nodeList[self.currentNode].x)
+        self.y = float(currentMap.nodeList[self.currentNode].y)
+        self.target_dir_x = 0
+        self.target_dir_y = 0
+        self.x_vel = 0
+        self.y_vel = 0
 
-player = Pacman(1)
+
+
+player = Pacman(55)

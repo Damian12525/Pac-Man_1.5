@@ -46,6 +46,9 @@ while not start and not want_to_exit:
     press_prompt.set_alpha(i)
     gameDisplay.blit(press_prompt,(450,450))
     pygame.display.update()
+
+
+
     i += increment
     if(i == 0 or i == 150):
         increment *= -1
@@ -61,9 +64,10 @@ pygame.mixer.music.play(-1)
 
 font = pygame.font.SysFont("Fipps", 30)
 
-while not dead and not want_to_exit and not won:
+while lives > 0 and not want_to_exit and not won:
 
     currentMap.spawn_rampage_pill()
+
 
 
     for event in pygame.event.get():
@@ -82,13 +86,56 @@ while not dead and not want_to_exit and not won:
             if event.key == pygame.K_RIGHT:
                 player.control(1, 0)
 
+            if event.key == pygame.K_ESCAPE:
+                resume = False
+                black_screen.set_alpha(200)
+                while not resume:
+
+                    gameDisplay.blit(background, (0, 0))
+                    drawPoints()
+                    draw_rampage_pills()
+                    player.show()
+                    for i in range(len(ghosts)):
+                        ghosts[i].show()
+                    text = font.render(str(player.score), True, (255, 255, 0))
+                    gameDisplay.blit(text, (1200, -10))
+                    draw_hearts(lives)
+
+                    gameDisplay.blit(black_screen, (0, 0))
+                    gameDisplay.blit(logo, (220, 0))
+                    resume_prompt.set_alpha(i)
+                    gameDisplay.blit(resume_prompt, (400, 750))
+
+                    pygame.display.update()
+                    i += increment
+                    if (i == 0 or i == 150):
+                        increment *= -1
+
+
+
+
+
+
+                    for x in pygame.event.get():
+                        if x.type == pygame.QUIT:
+                            # przerywamy petle
+                            want_to_exit = True
+                            resume = True
+
+
+                        if x.type == pygame.KEYDOWN:
+                            if x.key == pygame.K_ESCAPE:
+                                resume = True
+
+
         # print(event)
     player.update()
     player.eat()
     player.eat_rampage_pill()
     rampage_mode = player.check_if_rampage()
-    dead = player.contact(rampage_mode)
+    lives += player.contact(rampage_mode)
     won = player.check_if_won()
+
 
 
 
@@ -99,8 +146,9 @@ while not dead and not want_to_exit and not won:
     draw_rampage_pills()
     player.show()
     text = font.render(str(player.score), True, (255, 255, 0))
-    gameDisplay.blit(text,(1220,100))
-    gameDisplay.blit(logo2,(560,0))
+    gameDisplay.blit(text,(1200,-10))
+    gameDisplay.blit(logo2,(560,-10))
+    draw_hearts(lives)
 
 
 
@@ -115,7 +163,7 @@ while not dead and not want_to_exit and not won:
 if won:
     print("Gratulacje")
 
-if dead:
-    print("RIP")
+
+
 
 exit()

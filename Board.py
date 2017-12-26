@@ -39,6 +39,8 @@ class Node:
 
 
 
+
+
 class Map:
     mapCount = 0
 
@@ -117,6 +119,7 @@ class Map:
         self.ghostHouseList = []
 
         self.rampage_pill = []
+        self.start_node = 55
 
         file = open(file_path, "r")
 
@@ -266,14 +269,14 @@ class Map:
 
         # im.show()
         back = Image.open("./assets/img/back.png")
-        back.paste(im, (0,box_size))
+        back.paste(im, (box_size,box_size))
         back.save("./tmp/map.png")
 
 
     def spawn_rampage_pill(self):
         while len(self.rampage_pill) < 4:
             rnd = -1
-            while rnd == -1 and self.rampage_pill.count(rnd) != 0:
+            while rnd == -1 or self.rampage_pill.count(rnd) != 0:
                 rnd = random.randrange(len(self.nodeList))
 
             self.rampage_pill.append(rnd)

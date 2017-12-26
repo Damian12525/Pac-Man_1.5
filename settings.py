@@ -7,7 +7,7 @@ from characters import *
 
 displayWidth = 1360
 displayHeight = 960
-ghost_number = 3
+ghost_number = 0
 
 currentMap = Board.Map("./mapFiles/map6.txt")
 
@@ -28,6 +28,11 @@ text = font.render("Press Enter", True, (255,255 , 0))
 press_prompt = pygame.Surface((400,100))
 press_prompt.blit(text,(0,0))
 
+font = pygame.font.SysFont("Fipps", 30)
+text = font.render("Press Esc to resume", True, (255,255 , 0))
+resume_prompt = pygame.Surface((800,100))
+resume_prompt.blit(text,(0,0))
+
 start_screen = pygame.image.load("./assets/img/start_screen2.png")
 start_screen = pygame.transform.scale(start_screen, (displayWidth, displayHeight))
 
@@ -40,6 +45,9 @@ im = Image.new('RGB', (displayWidth, displayHeight), (255, 255, 255))
 im.save("./assets/img/white_screen.png")
 white_screen = pygame.image.load("./assets/img/white_screen.png")
 white_screen.convert()
+
+ant = pygame.image.load("./assets/img/ant.png")
+ant.convert()
 
 red = (255, 0, 0)
 
@@ -61,7 +69,7 @@ def constrain (value, min, max):
 def signum(x):
     return x / math.fabs(x)
 def positionToDraw(x, y):
-    draw_x = int(x * Board.box_size - 0.5 * Board.box_size)
+    draw_x = int(x * Board.box_size + 0.5 * Board.box_size)
     draw_y = int(y * Board.box_size + 0.5 * Board.box_size)
     return (draw_x, draw_y)
 def drawPoints():
@@ -90,4 +98,11 @@ def draw_rampage_pills():
         pygame.draw.circle(gameDisplay, (255, 0, 0),positionToDraw(currentMap.nodeList[currentMap.rampage_pill[i]].x, currentMap.nodeList[currentMap.rampage_pill[i]].y), 6)
 
 
+def draw_hearts(_lives):
+    hearts = pygame.image.load("./assets/img/lives_" + str(_lives) + ".png")
+    gameDisplay.blit(hearts, (0,0))
 
+
+
+
+coin = pygame.mixer.Sound('./assets/sound/coin.wav')
