@@ -4,12 +4,24 @@ import math
 import Board
 import os
 from characters import *
+from gameState import *
+
 
 displayWidth = 1360
 displayHeight = 960
-ghost_number = 0
+ghost_number = 3
 
-currentMap = Board.Map("./mapFiles/map6.txt")
+
+rs_alpha = 0
+rs_increment = 10
+
+
+
+def createMap(_level):
+
+
+    return Board.Map("./mapFiles/map" + str(_level) + ".txt")
+
 
 
 
@@ -20,6 +32,7 @@ pygame.display.set_caption('Return of the PAC-ANT')
 logo = pygame.image.load("./assets/img/logo2.png")
 logo2 = pygame.image.load("./assets/img/logo4.png")
 
+global gameDisplay
 gameDisplay = pygame.display.set_mode((displayWidth, displayHeight))
 clock = pygame.time.Clock()
 
@@ -28,10 +41,21 @@ text = font.render("Press Enter", True, (255,255 , 0))
 press_prompt = pygame.Surface((400,100))
 press_prompt.blit(text,(0,0))
 
+text = font.render("About me", True, (255,255 , 0))
+about = pygame.Surface((400,100))
+about.blit(text,(0,0))
+
+
+
+game_over = font.render("Game Over", True, (255,255 , 0))
+
 font = pygame.font.SysFont("Fipps", 30)
 text = font.render("Press Esc to resume", True, (255,255 , 0))
-resume_prompt = pygame.Surface((800,100))
+
+resume_prompt = pygame.Surface((600,100))
 resume_prompt.blit(text,(0,0))
+resume_prompt.convert()
+
 
 start_screen = pygame.image.load("./assets/img/start_screen2.png")
 start_screen = pygame.transform.scale(start_screen, (displayWidth, displayHeight))
@@ -41,20 +65,41 @@ im.save("./assets/img/black_screen.png")
 black_screen = pygame.image.load("./assets/img/black_screen.png")
 black_screen.convert()
 
+
+im = Image.new('RGB', (displayWidth, displayHeight), (255, 0, 0))
+im.save("./assets/img/red_screen.png")
+red_screen = pygame.image.load("./assets/img/red_screen.png")
+red_screen.convert()
+
+
 im = Image.new('RGB', (displayWidth, displayHeight), (255, 255, 255))
 im.save("./assets/img/white_screen.png")
 white_screen = pygame.image.load("./assets/img/white_screen.png")
 white_screen.convert()
 
-ant = pygame.image.load("./assets/img/ant.png")
-ant.convert()
+ant1 = pygame.image.load("./assets/img/ant1.png")
+ant1.convert()
+
+ant2 = pygame.image.load("./assets/img/ant2.png")
+ant2.convert()
+
+about_screen = pygame.image.load("./assets/img/about_screen.png")
+
+ladybug = pygame.image.load("./assets/img/ladybug.png")
+
+tunel1 = pygame.image.load("./assets/map/tunnel_1.png")
+tunel2 = pygame.image.load("./assets/map/tunnel_2.png")
+tunel4 = pygame.image.load("./assets/map/tunnel_4.png")
+tunel8 = pygame.image.load("./assets/map/tunnel_8.png")
 
 red = (255, 0, 0)
 
 
 
+
+
 def exit():
-    os.remove("./tmp/map.png")
+    #os.remove("./tmp/map.png")
     pygame.mixer.quit()
     pygame.quit()
 
@@ -72,7 +117,7 @@ def positionToDraw(x, y):
     draw_x = int(x * Board.box_size + 0.5 * Board.box_size)
     draw_y = int(y * Board.box_size + 0.5 * Board.box_size)
     return (draw_x, draw_y)
-def drawPoints():
+def drawPoints(currentMap):
     for i in range(len(currentMap.edgeList)):
         # currentMap.edgeList[i].pointList[j].pos
 
@@ -93,7 +138,7 @@ def drawPoints():
 def distance(x1, y1, x2, y2):
     return math.sqrt((x2-x1)**2+(y2-y1)**2)
 
-def draw_rampage_pills():
+def draw_rampage_pills(currentMap):
     for i in range(len(currentMap.rampage_pill)):
         pygame.draw.circle(gameDisplay, (255, 0, 0),positionToDraw(currentMap.nodeList[currentMap.rampage_pill[i]].x, currentMap.nodeList[currentMap.rampage_pill[i]].y), 6)
 
@@ -102,7 +147,11 @@ def draw_hearts(_lives):
     hearts = pygame.image.load("./assets/img/lives_" + str(_lives) + ".png")
     gameDisplay.blit(hearts, (0,0))
 
-
-
+def spawn_ghosts(currentMap, ghost_number):
+    for i in range(ghost_number):
+        rnd = int(random.randrange(len(currentMap.nodeList)))
+        ghosts.append(Ghost(currentMap, rnd))
 
 coin = pygame.mixer.Sound('./assets/sound/coin.wav')
+
+

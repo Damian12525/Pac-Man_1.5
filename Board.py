@@ -3,22 +3,16 @@ import math
 import random
 
 
-
 def signum(x):
     return x / math.fabs(x)
-
 
 
 box_size = 80
 
 
-
-
-
-
 class Node:
 
-    def __init__(self, _x, _y, _nodeID, _linkedTunelID = -1, _ghostHouse = -1):
+    def __init__(self, _x, _y, _nodeID, _linkedTunelID=-1, _ghostHouse=-1):
         self.x = _x
         self.y = _y
         self.type = 0
@@ -36,17 +30,11 @@ class Node:
         self.ghostHouse = _ghostHouse
 
 
-
-
-
-
-
 class Map:
     mapCount = 0
 
-
-    def addEdge(self, _node1ID, _node2ID, _withPoints = 1):
-        newEdge = Edge(int( _node1ID), int(_node2ID), len(self.edgeList), _withPoints)
+    def addEdge(self, _node1ID, _node2ID, _withPoints=1):
+        newEdge = Edge(int(_node1ID), int(_node2ID), len(self.edgeList), _withPoints)
         newEdge.node1x = self.nodeList[newEdge.nodeID_1].x
         newEdge.node1y = self.nodeList[newEdge.nodeID_1].y
         newEdge.node2x = self.nodeList[newEdge.nodeID_2].x
@@ -103,11 +91,6 @@ class Map:
 
         self.edgeList.append(newEdge)
 
-
-
-
-
-
     def __init__(self, file_path):
         Map.mapCount += 1
         self.mapID = Map.mapCount
@@ -125,7 +108,11 @@ class Map:
 
         lines = file.readlines()
 
-        for i in range(len(lines)):
+        currentLine = lines[0]
+        currentLine = currentLine.split()
+
+        self.start_node = int(currentLine[0])
+        for i in range(1,len(lines),1):
             # odczytujemy linia po lini
 
             currentLine = lines[i]
@@ -158,7 +145,7 @@ class Map:
 
 
             elif currentLine[0] == 'g':
-                middleNode = Node(int(currentLine[1]), int(currentLine[2]), len(self.nodeList), -1,1)
+                middleNode = Node(int(currentLine[1]), int(currentLine[2]), len(self.nodeList), -1, 1)
                 middleNode.pointSlot = -1
 
                 self.ghostHouseList.append(len(self.nodeList))
@@ -167,29 +154,20 @@ class Map:
                 if int(currentLine[2]) > int(self.size_y):
                     self.size_y = currentLine[2]
 
-
-                leftNode = Node(int(middleNode.x -1 ),middleNode.y, len(self.nodeList),-1,1)
+                leftNode = Node(int(middleNode.x - 1), middleNode.y, len(self.nodeList), -1, 1)
                 leftNode.pointSlot = -1
                 self.ghostHouseList.append(len(self.nodeList))
                 self.nodeList.append(leftNode)
 
-
-                rightNode = Node(int(middleNode.x +1), middleNode.y, len(self.nodeList),-1,1)
+                rightNode = Node(int(middleNode.x + 1), middleNode.y, len(self.nodeList), -1, 1)
                 rightNode.pointSlot = -1
                 self.ghostHouseList.append(len(self.nodeList))
                 self.nodeList.append(rightNode)
                 if int(currentLine[1]) + 1 > int(self.size_x):
                     self.size_x = rightNode.x
 
-
-
                 self.addEdge(middleNode.nodeID, leftNode.nodeID, 0)
                 self.addEdge(middleNode.nodeID, rightNode.nodeID, 0)
-
-
-
-
-
 
         # set type of all nodes
         for i in range(len(self.nodeList)):
@@ -214,11 +192,7 @@ class Map:
         background = Image.open("./assets/map/background.png", "r")
         for x in range(int(self.size_x)):
             for y in range(int(self.size_y)):
-                im.paste(background, ((x  * box_size), (y * box_size)))
-
-
-
-
+                im.paste(background, ((x * box_size), (y * box_size)))
 
         for i in range(len(self.nodeList)):
             if self.nodeList[i].ghostHouse == -1:
@@ -227,7 +201,7 @@ class Map:
                 node = Image.open(nodeImgPath, "r")
             else:
                 if self.nodeList[i].up != -1:
-                    node = Image.open("./assets/map/ghouse_middle.png","r")
+                    node = Image.open("./assets/map/ghouse_middle.png", "r")
                 elif self.nodeList[i].right != -1:
                     node = Image.open("./assets/map/ghouse_left.png", "r")
                 elif self.nodeList[i].left != -1:
@@ -269,9 +243,8 @@ class Map:
 
         # im.show()
         back = Image.open("./assets/img/back.png")
-        back.paste(im, (box_size,box_size))
+        back.paste(im, (box_size, box_size))
         back.save("./tmp/map.png")
-
 
     def spawn_rampage_pill(self):
         while len(self.rampage_pill) < 4:
@@ -282,11 +255,9 @@ class Map:
             self.rampage_pill.append(rnd)
 
 
-
-
 class Edge:
 
-    def __init__(self, _nodeID_1, _nodeID_2, _edgeID, _withPoints = 1):
+    def __init__(self, _nodeID_1, _nodeID_2, _edgeID, _withPoints=1):
 
         self.edgeID = _edgeID
         self.nodeID_1 = _nodeID_1
@@ -295,7 +266,6 @@ class Edge:
         self.length = 0
         self.withPoints = _withPoints
         self.pointList = []
-
 
         self.node1x = 0
         self.node1y = 0
@@ -307,7 +277,6 @@ class Edge:
         self.maxX = 0
         self.minY = 0
         self.maxY = 0
-
 
     def placePoints(self):
         count = 0
