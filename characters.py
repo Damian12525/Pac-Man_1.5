@@ -7,11 +7,14 @@ ghosts = []
 
 
 class Ghost:
+    speed = 0.07
+
+
 
     def __init__(self, currentMap, _currentNode, _type=0):
 
         self.type = _type
-        self.speed = 0.07
+
         self.target_dir_x = 0
         self.target_dir_y = 0
 
@@ -54,26 +57,26 @@ class Ghost:
                 self.y = currentMap.nodeList[self.currentNode].y
 
                 if currentMap.nodeList[self.currentNode].right != -1:  # Go right
-                    self.x_vel = float(self.speed)
+                    self.x_vel = float(Ghost.speed)
                     self.y_vel = 0
                     self.currentEdge = currentMap.nodeList[self.currentNode].right
                     self.currentNode = -1
 
                 elif currentMap.nodeList[self.currentNode].left != -1:  # Go left
-                    self.x_vel = float(-1 * self.speed)
+                    self.x_vel = float(-1 * Ghost.speed)
                     self.y_vel = 0
                     self.currentEdge = currentMap.nodeList[self.currentNode].left
                     self.currentNode = -1
 
                 elif currentMap.nodeList[self.currentNode].down != -1:  # Go down
                     self.x_vel = 0
-                    self.y_vel = self.speed
+                    self.y_vel = Ghost.speed
                     self.currentEdge = currentMap.nodeList[self.currentNode].down
                     self.currentNode = -1
 
                 elif currentMap.nodeList[self.currentNode].up != -1:  # Go up
                     self.x_vel = 0
-                    self.y_vel = -self.speed
+                    self.y_vel = -Ghost.speed
                     self.currentEdge = currentMap.nodeList[self.currentNode].up
                     self.currentNode = -1
 
@@ -93,7 +96,7 @@ class Ghost:
 
             if currentMap.nodeList[self.currentNode].ghostHouse == 1 and currentNode.up != -1:
                 self.x_vel = 0
-                self.y_vel = -self.speed
+                self.y_vel = -Ghost.speed
                 self.currentEdge = currentMap.nodeList[self.currentNode].up
                 self.currentNode = -1
                 self.target_dir_x = 0
@@ -162,26 +165,26 @@ class Ghost:
                 self.target_dir_y = 0
 
             if self.target_dir_x > 0 and currentMap.nodeList[self.currentNode].right != -1:  # Go right
-                self.x_vel = self.speed
+                self.x_vel = Ghost.speed
                 self.y_vel = 0
                 self.currentEdge = currentMap.nodeList[self.currentNode].right
                 self.currentNode = -1
 
             elif self.target_dir_x < 0 and currentMap.nodeList[self.currentNode].left != -1:  # Go left
-                self.x_vel = -self.speed
+                self.x_vel = -Ghost.speed
                 self.y_vel = 0
                 self.currentEdge = currentMap.nodeList[self.currentNode].left
                 self.currentNode = -1
 
             elif self.target_dir_y > 0 and currentMap.nodeList[self.currentNode].down != -1:  # Go down
                 self.x_vel = 0
-                self.y_vel = self.speed
+                self.y_vel = Ghost.speed
                 self.currentEdge = currentMap.nodeList[self.currentNode].down
                 self.currentNode = -1
 
             elif self.target_dir_y < 0 and currentMap.nodeList[self.currentNode].up != -1:  # Go up
                 self.x_vel = 0
-                self.y_vel = -self.speed
+                self.y_vel = -Ghost.speed
                 self.currentEdge = currentMap.nodeList[self.currentNode].up
                 self.currentNode = -1
 
@@ -198,9 +201,9 @@ class Ghost:
                                      currentMap.edgeList[self.currentEdge].maxY))
 
             if currentMap.edgeList[self.currentEdge].vertical and self.target_dir_y != 0:
-                self.y_vel = self.target_dir_y * self.speed
+                self.y_vel = self.target_dir_y * Ghost.speed
             elif currentMap.edgeList[self.currentEdge].vertical == False and self.target_dir_x != 0:
-                self.x_vel = self.target_dir_x * self.speed
+                self.x_vel = self.target_dir_x * Ghost.speed
 
             if self.atNode1(currentMap):
 
@@ -442,9 +445,13 @@ class Pacman:
         for i in range(len(ghosts)):
             if distance(self.x, self.y, ghosts[i].x, ghosts[i].y) < 0.09:
                 if _rampage_mode:
+                    bug_death.play()
+                    pygame.time.delay(100)
                     ghosts[i].respawn(currentMap)
 
                 else:
+                    ant_death.play()
+                    pygame.time.delay(100)
                     self.respawn(currentMap)
                     return -1
         return 0

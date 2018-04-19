@@ -37,13 +37,17 @@ gameDisplay = pygame.display.set_mode((displayWidth, displayHeight))
 clock = pygame.time.Clock()
 
 font = pygame.font.SysFont("Fipps", 40)
-text = font.render("Press Enter", True, (255,255 , 0))
+text = font.render("Star game", True, (255,255 , 0))
 press_prompt = pygame.Surface((400,100))
 press_prompt.blit(text,(0,0))
 
 text = font.render("About me", True, (255,255 , 0))
 about = pygame.Surface((400,100))
 about.blit(text,(0,0))
+
+text = font.render("New Highscore!!!", True, (255,255 , 0))
+new_hs = pygame.Surface((600,100))
+new_hs.blit(text,(0,0))
 
 
 
@@ -152,6 +156,28 @@ def spawn_ghosts(currentMap, ghost_number):
         rnd = int(random.randrange(len(currentMap.nodeList)))
         ghosts.append(Ghost(currentMap, rnd))
 
+
+def change_highscore(total_score):
+    file = open("./mapFiles/highscore.txt", "r")
+
+    line = file.read()
+    file.close()
+    if int(line) <= total_score:
+        file = open("./mapFiles/highscore.txt", "w")
+        file.write(str(total_score))
+        file.close()
+        return True
+    else:
+        return False
+
+
+
+
+
 coin = pygame.mixer.Sound('./assets/sound/coin.wav')
+coin.set_volume(0.5)
 
 
+ant_death = pygame.mixer.Sound('./assets/sound/ant_death.wav')
+
+bug_death = pygame.mixer.Sound('./assets/sound/bug_death.wav')

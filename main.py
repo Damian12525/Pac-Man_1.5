@@ -148,10 +148,13 @@ while lives > 0 and not want_to_exit:
     currentMap = createMap(level)
     background = pygame.image.load("./tmp/map.png")
     player = Pacman(currentMap, currentMap.start_node)
+    Ghost.speed = 0.07 + (Pacman.total_score // 1000) * 0.005
 
+    ghost_number = 4 + Pacman.total_score // 1000
     for i in range(ghost_number):
         rnd = int(random.randrange(len(currentMap.nodeList)))
         ghosts.append(Ghost(currentMap, rnd))
+
 
     while lives > 0 and not want_to_exit and not won:
 
@@ -271,9 +274,13 @@ while lives > 0 and not want_to_exit:
         gameDisplay.blit(game_over, (480,500))
         text = font.render("Score: " + str(Pacman.total_score), True, (255, 255, 0))
         gameDisplay.blit(text, (530, 600))
+        if(change_highscore(Pacman.total_score)):
+            font = pygame.font.SysFont("Fipps", 40)
+            text = font.render("New Highscore!!!", True, (255, 255, 0))
+            gameDisplay.blit(text, (400, 400))
 
         pygame.display.update()
-        pygame.time.delay(3000)
+        pygame.time.delay(6000)
 
 
 exit()
